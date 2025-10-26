@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model cart {
+  id                Int      @id @default(autoincrement())
+  cartUserId        Int
+  items             Json
+  totalCartPrice    Int      @default(0)
+  totalCartQuantity Int      @default(0)
+  createdAt         DateTime @db.DateTime(0)
+  updatedAt         DateTime @db.DateTime(0)
+}
+
+model coupon {
+  id            Int         @id @default(autoincrement())
+  code          String      @unique(map: "code") @db.VarChar(64)
+  ownerUserId   Int
+  type          coupon_type @default(FIXED)
+  value         Int         @default(0)
+  minOrder      Int         @default(0)
+  maxDiscount   Int         @default(0)
+  expiresAt     DateTime?   @db.DateTime(0)
+  usesRemaining Int         @default(1)
+  createdAt     DateTime    @db.DateTime(0)
+  updatedAt     DateTime    @db.DateTime(0)
+}
+
+model coupontemplate {
+  id            Int                 @id @default(autoincrement())
+  name          String              @db.VarChar(128)
+  type          coupontemplate_type
+  value         Int
+  minOrder      Int                 @default(0)
+  maxDiscount   Int                 @default(0)
+  costPoints    Int
+  expiresInDays Int                 @default(7)
+  usesPerCoupon Int                 @default(1)
+  createdAt     DateTime            @db.DateTime(0)
+  updatedAt     DateTime            @db.DateTime(0)
+}
+
+model favorite {
+  id                Int      @id @default(autoincrement())
+  favoriteUserId    Int
+  favoriteProductId Int
+  createdAt         DateTime @db.DateTime(0)
+  updatedAt         DateTime @db.DateTime(0)
+
+  @@unique([favoriteUserId, favoriteProductId], map: "favorite_favorite_user_id_favorite_product_id")
+}
+
+model order {
+  id                 Int          @id @default(autoincrement())
+  orderUserId        Int
+  items              Json
+  totalOrderPrice    Int          @default(0)
+  totalOrderQuantity Int          @default(0)
+  shippingAddress    Json
+  cancelRequested    Boolean      @default(false)
+  status             order_status @default(NEW)
+  createdAt          DateTime     @db.DateTime(0)
+  updatedAt          DateTime     @db.DateTime(0)
+}
+
+model product {
+  id                 Int      @id @default(autoincrement())
+  productName        String   @db.VarChar(255)
+  productDescription String   @db.VarChar(255)
+  productPrice       Int
+  productQuantity    Int
+  productImage       Json     @default(dbgenerated("(json_array())"))
+  productCountSell   Int?
+  productClickView   Int?
+  productPromotion   Int?
+  createdAt          DateTime @default(now()) @db.DateTime(0)
+  updatedAt          DateTime @default(now()) @db.DateTime(0)
+}
+
+model promotionscore {
+  id                   Int      @id @default(autoincrement())
+  promotionScoreUserId Int
+  totalPromotionScore  Int      @default(0)
+  createdAt            DateTime @db.DateTime(0)
+  updatedAt            DateTime @db.DateTime(0)
+}
+
+model review {
+  id              Int           @id @default(autoincrement())
+  reviewUserId    Int
+  reviewProductId Int
+  reviewOrderId   Int
+  rating          Int
+  comment         String?       @db.Text
+  images          Json?
+  isVerified      Boolean       @default(false)
+  status          review_status @default(PENDING)
+  createdAt       DateTime      @db.DateTime(0)
+  updatedAt       DateTime      @db.DateTime(0)
+}
+
+model user {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  email       String    @unique(map: "email") @db.VarChar(255)
+  password    String    @db.VarChar(255)
+  cartData    Json?
+  codeID      Int?
+  codeExpired DateTime? @db.DateTime(0)
+  isVerified  Boolean?  @default(false)
+  role        user_role @default(USER)
+  createdAt   DateTime  @db.DateTime(0)
+  updatedAt   DateTime  @db.DateTime(0)
+}
+
+enum coupontemplate_type {
+  FIXED
+  PERCENT
+}
+
+enum coupon_type {
+  FIXED
+  PERCENT
+}
+
+enum order_status {
+  NEW
+  CONFIRMED
+  PREPARING
+  SHIPPING
+  COMPLETED
+  CANCELLED
+}
+
+enum review_status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum user_role {
+  USER
+  ADMIN
+}
