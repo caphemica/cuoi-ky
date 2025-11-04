@@ -172,3 +172,66 @@ export const getUsersAPI = (params: UsersParams = {}) => {
 export const verifyUserAPI = (userId: number) => {
     return axios.patch(`/user/${userId}/verify`);
 }
+
+// Coupon Template APIs
+export interface CouponTemplate {
+    id: number;
+    name: string;
+    type: 'FIXED' | 'PERCENT';
+    value: number;
+    minOrder: number;
+    maxDiscount: number;
+    costPoints: number;
+    expiresInDays: number;
+    usesPerCoupon: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CouponsResponse {
+    message: string;
+    meta: {
+        current: number;
+        pageSize: number;
+        total: number;
+        page: number;
+    };
+    data: CouponTemplate[];
+}
+
+export interface CouponParams {
+    name?: string;
+    type?: 'FIXED' | 'PERCENT';
+    current?: number;
+    pageSize?: number;
+}
+
+export const getCouponsAPI = (params: CouponParams = {}) => {
+    const searchParams = new URLSearchParams();
+    if (params.name) searchParams.append('name', params.name);
+    if (params.type) searchParams.append('type', params.type);
+    if (params.current) searchParams.append('current', params.current.toString());
+    if (params.pageSize) searchParams.append('pageSize', params.pageSize.toString());
+    const queryString = searchParams.toString();
+    const url = queryString ? `/coupon?${queryString}` : '/coupon';
+    return axios.get(url);
+}
+
+export const createCouponAPI = (payload: Omit<CouponTemplate, 'id' | 'createdAt' | 'updatedAt'>) => {
+    return axios.post('/coupon', payload);
+}
+
+export const updateCouponAPI = (id: number, payload: Partial<Omit<CouponTemplate, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    return axios.patch(`/coupon/${id}`, payload);
+}
+
+export const deleteCouponAPI = (id: number) => {
+    return axios.delete(`/coupon/${id}`);
+}
+
+export const getCouponByIdAPI = (id: number) => {
+    return axios.get(`/coupon/${id}` , {
+        params: { _ts: Date.now() },
+        headers: { 'Cache-Control': 'no-cache' }
+    });
+}

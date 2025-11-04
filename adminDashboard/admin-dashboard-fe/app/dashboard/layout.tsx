@@ -6,6 +6,7 @@ import {
   ShoppingOutlined,
   FileTextOutlined,
   TeamOutlined,
+  DollarOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 
@@ -34,6 +35,12 @@ export default function DashboardLayout({
       icon: <FileTextOutlined />,
       label: "Orders",
       onClick: () => router.push("/dashboard/orders"),
+    },
+    {
+      key: "/dashboard/coupon",
+      icon: <DollarOutlined />,
+      label: "Coupons",
+      onClick: () => router.push("/dashboard/coupon"),
     },
     {
       key: "/dashboard/users",
